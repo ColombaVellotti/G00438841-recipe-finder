@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>G00438841</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="goToFavourites()">
+        <ion-icon name="heart"></ion-icon>
+      </ion-button>
+
+      <ion-button (click)="goToSettings()">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="floating">Enter ingredients</ion-label>
+    <ion-input [(ngModel)]="searchText"></ion-input>
+  </ion-item>
+
+  <ion-button expand="block" (click)="searchRecipes()">
+    Search
+  </ion-button>
+
+  <ion-list>
+    <ion-item *ngFor="let recipe of recipes">
+      <ion-label>{{ recipe.title }}</ion-label>
+      <ion-button slot="end" (click)="openRecipeDetails(recipe)">
+        Details
+      </ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>
