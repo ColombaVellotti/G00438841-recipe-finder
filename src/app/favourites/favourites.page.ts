@@ -1,19 +1,67 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonThumbnail,
+  IonImg,
+  IonButtons,
+  IonButton,
+  IonIcon,
+} from '@ionic/angular/standalone';
+
+import { addIcons } from 'ionicons';
+import { trashOutline } from 'ionicons/icons';
+
+import { FavouritesService, FavouriteRecipe } from '../services/favourites.service';
 
 @Component({
   selector: 'app-favourites',
   templateUrl: './favourites.page.html',
+  styleUrls: ['./favourites.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    RouterLink,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonThumbnail,
+    IonImg,
+    IonButtons,
+    IonButton,
+    IonIcon,
+  ],
 })
-export class FavouritesPage implements OnInit {
+export class FavouritesPage {
+  favourites: FavouriteRecipe[] = [];
 
-  constructor() { }
-
-  ngOnInit() {
+  constructor(private favouritesService: FavouritesService) {
+    addIcons({ trashOutline });
   }
 
+  // Runs every time you enter this page (so list refreshes)
+  async ionViewWillEnter(): Promise<void> {
+    this.favourites = await this.favouritesService.getFavourites();
+  }
+
+  async remove(recipeId: number): Promise<void> {
+    await this.favouritesService.removeFavourite(recipeId);
+    this.favourites = await this.favouritesService.getFavourites();
+  }
+
+  trackById(_: number, item: FavouriteRecipe): number {
+    return item.id;
+  }
 }
