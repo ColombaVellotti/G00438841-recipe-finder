@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import {
   IonHeader,
@@ -18,7 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
-import { heart, settingsOutline } from 'ionicons/icons';
+import { heartOutline, settingsOutline } from 'ionicons/icons';
 
 import { RecipeService } from '../services/recipe.service';
 
@@ -41,6 +41,9 @@ import { RecipeService } from '../services/recipe.service';
     IonList,
     CommonModule,
     FormsModule,
+
+    // needed for routerLink in standalone components
+    RouterLink,
   ],
 })
 export class HomePage {
@@ -48,7 +51,7 @@ export class HomePage {
   recipes: any[] = [];
 
   constructor(private router: Router, private recipeService: RecipeService) {
-    addIcons({ heart, settingsOutline });
+    addIcons({ heartOutline, settingsOutline });
   }
 
   async searchRecipes() {
@@ -56,11 +59,7 @@ export class HomePage {
   }
 
   openRecipeDetails(recipe: any) {
-  this.router.navigateByUrl('/recipe-details?id=' + recipe.id);
-  }
-
-  goToFavourites() {
-    this.router.navigateByUrl('/favourites');
+    this.router.navigateByUrl('/recipe-details?id=' + recipe.id);
   }
 
   goToSettings() {
