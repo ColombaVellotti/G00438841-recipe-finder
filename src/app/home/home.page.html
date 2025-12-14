@@ -3,8 +3,8 @@
     <ion-title>G00438841</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="goToFavourites()">
-        <ion-icon name="heart"></ion-icon>
+      <ion-button routerLink="/favourites">
+        <ion-icon name="heart-outline"></ion-icon>
       </ion-button>
 
       <ion-button (click)="goToSettings()">
@@ -24,12 +24,22 @@
     Search
   </ion-button>
 
-  <ion-list>
-    <ion-item *ngFor="let recipe of recipes">
-      <ion-label>{{ recipe.title }}</ion-label>
-      <ion-button slot="end" (click)="openRecipeDetails(recipe)">
-        Details
-      </ion-button>
-    </ion-item>
-  </ion-list>
+  <div class="cards-container">
+    <div class="recipe-card" *ngFor="let recipe of recipes">
+      <img
+        *ngIf="recipe.image"
+        class="recipe-img"
+        [src]="recipe.image"
+        [alt]="recipe.title"
+      />
+
+      <div class="recipe-body">
+        <div class="recipe-title">{{ recipe.title }}</div>
+
+        <ion-button size="small" (click)="openRecipeDetails(recipe)">
+          DETAILS
+        </ion-button>
+      </div>
+    </div>
+  </div>
 </ion-content>

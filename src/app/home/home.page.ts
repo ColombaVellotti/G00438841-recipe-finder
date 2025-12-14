@@ -14,7 +14,6 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonList,
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -28,6 +27,10 @@ import { RecipeService } from '../services/recipe.service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -38,12 +41,6 @@ import { RecipeService } from '../services/recipe.service';
     IonItem,
     IonLabel,
     IonInput,
-    IonList,
-    CommonModule,
-    FormsModule,
-
-    // needed for routerLink in standalone components
-    RouterLink,
   ],
 })
 export class HomePage {
@@ -55,7 +52,25 @@ export class HomePage {
   }
 
   async searchRecipes() {
-    this.recipes = await this.recipeService.searchByIngredients(this.searchText);
+    this.recipes = [];
+
+    const query = (this.searchText || '').trim();
+    if (!query) return;
+
+    try {
+      const resp: any = await this.recipeService.searchByIngredients(query);
+      console.log('HOME: searchByIngredients response =', resp);
+
+      if (Array.isArray(resp)) this.recipes = resp;
+      else if (Array.isArray(resp?.data)) this.recipes = resp.data;
+      else if (Array.isArray(resp?.results)) this.recipes = resp.results;
+      else this.recipes = [];
+
+      console.log('HOME: recipes array length =', this.recipes.length);
+    } catch (err) {
+      console.log('HOME: searchRecipes error =', err);
+      this.recipes = [];
+    }
   }
 
   openRecipeDetails(recipe: any) {
