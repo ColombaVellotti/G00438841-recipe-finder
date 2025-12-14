@@ -5,8 +5,8 @@ import { CapacitorHttp } from '@capacitor/core';
   providedIn: 'root',
 })
 export class RecipeService {
-  // TODO: paste your Spoonacular API key here
-  private apiKey: string = 'PASTE_YOUR_API_KEY_HERE';
+  // TODO 
+  private apiKey: string = '70759a4f7911402abcc53d3c51d3b759';
 
   constructor() {}
 
@@ -24,5 +24,25 @@ export class RecipeService {
     });
 
     return (response.data as any[]) ?? [];
+  }
+
+  async getRecipeDetails(id: string): Promise<any> {
+    const response = await CapacitorHttp.get({
+      url: `https://api.spoonacular.com/recipes/${id}/information`,
+      params: {
+        includeNutrition: 'false',
+        apiKey: this.apiKey,
+      },
+    });
+
+    return response.data;
+  }
+
+  // return full response so we can see status + error payload if any
+  async getRecipeIngredientsWidget(id: string): Promise<{ status: number; data: any }> {
+    return await CapacitorHttp.get({
+      url: `https://api.spoonacular.com/recipes/${id}/ingredientWidget.json`,
+      params: { apiKey: this.apiKey },
+    });
   }
 }

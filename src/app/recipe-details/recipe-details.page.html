@@ -5,5 +5,42 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <p>Recipe id: {{ recipeId }}</p>
+  <p><b>Recipe id:</b> {{ recipeId }}</p>
+
+  <p *ngIf="debugMsg" style="color: #555;">
+    <b>Debug:</b> {{ debugMsg }}
+  </p>
+
+  <p *ngIf="errorMsg" style="color: red;">
+    <b>Error:</b> {{ errorMsg }}
+  </p>
+
+  <div *ngIf="recipe">
+    <h2>{{ recipe.title }}</h2>
+
+    <img
+      *ngIf="recipe.image"
+      [src]="recipe.image"
+      [alt]="recipe.title"
+      style="max-width: 100%; border-radius: 8px;"
+    />
+
+    <h3>Ingredients</h3>
+
+    <ion-list *ngIf="ingredients.length">
+      <ion-item *ngFor="let ing of ingredients">
+        <ion-label>
+          {{ ing.original || (ing.amount?.metric?.value + ' ' + ing.amount?.metric?.unit + ' ' + ing.name) }}
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <p *ngIf="!ingredients.length && !errorMsg">
+      No ingredients found in response.
+    </p>
+  </div>
+
+  <p *ngIf="!recipe && !errorMsg">
+    Loading...
+  </p>
 </ion-content>
