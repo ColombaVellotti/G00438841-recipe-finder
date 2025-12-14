@@ -1,15 +1,17 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Recipe Details</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavourite()" [disabled]="!recipeId">
+        <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <p><b>Recipe id:</b> {{ recipeId }}</p>
-
-  <p *ngIf="debugMsg" style="color: #555;">
-    <b>Debug:</b> {{ debugMsg }}
-  </p>
 
   <p *ngIf="errorMsg" style="color: red;">
     <b>Error:</b> {{ errorMsg }}

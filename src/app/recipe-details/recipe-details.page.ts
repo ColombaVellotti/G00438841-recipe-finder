@@ -10,9 +10,16 @@ import {
   IonList,
   IonItem,
   IonLabel,
+  IonButtons,
+  IonButton,
+  IonIcon,
 } from '@ionic/angular/standalone';
 
+import { addIcons } from 'ionicons';
+import { heart, heartOutline } from 'ionicons/icons';
+
 import { RecipeService } from '../services/recipe.service';
+import { FavouritesService, FavouriteRecipe } from '../services/favourites.service';
 
 @Component({
   selector: 'app-recipe-details',
@@ -27,6 +34,9 @@ import { RecipeService } from '../services/recipe.service';
     IonList,
     IonItem,
     IonLabel,
+    IonButtons,
+    IonButton,
+    IonIcon,
   ],
 })
 export class RecipeDetailsPage {
@@ -38,7 +48,15 @@ export class RecipeDetailsPage {
   errorMsg: string = '';
   debugMsg: string = '';
 
-  constructor(private route: ActivatedRoute, private recipeService: RecipeService) {}
+  isFavourite: boolean = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private recipeService: RecipeService,
+    private favouritesService: FavouritesService
+  ) {
+    addIcons({ heart, heartOutline });
+  }
 
   async ngOnInit() {
     this.recipeId = this.route.snapshot.queryParamMap.get('id');
@@ -49,10 +67,16 @@ export class RecipeDetailsPage {
       return;
     }
 
+    // Check favourite status early (even before recipe loads)
+    this.isFavourite = await this.favouritesService.isFavourite(Number(this.recipeId));
+
     try {
       // 1) load recipe info
       this.recipe = await this.recipeService.getRecipeDetails(this.recipeId);
       console.log('DETAILS PAGE recipe =', this.recipe);
+
+      // Update favourite status again now that we definitely have a valid recipeId
+      this.isFavourite = await this.favouritesService.isFavourite(Number(this.recipeId));
 
       // 2) try extendedIngredients first (if present)
       if (this.recipe?.extendedIngredients?.length) {
@@ -82,5 +106,17 @@ export class RecipeDetailsPage {
       console.log('DETAILS PAGE error =', err);
       this.errorMsg = 'Failed to load recipe details or ingredients. Check console.';
     }
+  }
+
+  async toggleFavourite(): Promise<void> {
+    if (!this.recipeId) return;
+
+    const fav: FavouriteRecipe = {
+      id: Number(this.recipeId),
+      title: this.recipe?.title ?? `Recipe ${this.recipeId}`,
+      image: this.recipe?.image,
+    };
+
+    this.isFavourite = await this.favouritesService.toggleFavourite(fav);
   }
 }
