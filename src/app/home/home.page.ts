@@ -20,6 +20,8 @@ import {
 import { addIcons } from 'ionicons';
 import { heart, settingsOutline } from 'ionicons/icons';
 
+import { RecipeService } from '../services/recipe.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -45,16 +47,16 @@ export class HomePage {
   searchText: string = '';
   recipes: any[] = [];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private recipeService: RecipeService) {
     addIcons({ heart, settingsOutline });
   }
 
-  searchRecipes() {
-    console.log('Searching for:', this.searchText);
+  async searchRecipes() {
+    this.recipes = await this.recipeService.searchByIngredients(this.searchText);
   }
 
   openRecipeDetails(recipe: any) {
-    console.log('Open recipe details for:', recipe);
+  this.router.navigateByUrl('/recipe-details?id=' + recipe.id);
   }
 
   goToFavourites() {
