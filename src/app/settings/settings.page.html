@@ -1,13 +1,32 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>settings</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Settings</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">settings</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item lines="none">
+      <ion-label>
+        <h2>Measurements</h2>
+        <p>Select how ingredient amounts are displayed.</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-radio-group [value]="unitSystem" (ionChange)="onUnitChange($event)">
+      <ion-item>
+        <ion-label>Metric (g, ml)</ion-label>
+        <ion-radio slot="end" value="metric"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>US (oz, cups)</ion-label>
+        <ion-radio slot="end" value="us"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
 </ion-content>

@@ -1,19 +1,54 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { Component } from '@angular/core';
+
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonRadioGroup,
+  IonRadio,
+  IonButtons,
+  IonBackButton,
+} from '@ionic/angular/standalone';
+
+import { SettingsService, UnitSystem } from '../services/settings.service';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
+  styleUrls: ['./settings.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonRadioGroup,
+    IonRadio,
+    IonButtons,
+    IonBackButton,
+  ],
 })
-export class SettingsPage implements OnInit {
+export class SettingsPage {
+  unitSystem: UnitSystem = 'metric';
 
-  constructor() { }
+  constructor(private settingsService: SettingsService) {}
 
-  ngOnInit() {
+  async ionViewWillEnter(): Promise<void> {
+    this.unitSystem = await this.settingsService.getUnitSystem();
   }
 
+  async onUnitChange(ev: CustomEvent): Promise<void> {
+    const value = ev.detail.value as UnitSystem;
+    this.unitSystem = value;
+    await this.settingsService.setUnitSystem(value);
+  }
 }
