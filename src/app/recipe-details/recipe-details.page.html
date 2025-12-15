@@ -22,6 +22,11 @@
   <div *ngIf="recipe">
     <h2>{{ recipe.title }}</h2>
 
+    <!-- Unit system indicator -->
+    <p style="color: #666; font-size: 14px; margin-top: -6px;">
+      Units: <b>{{ unitSystem === 'metric' ? 'Metric' : 'US' }}</b>
+    </p>
+
     <img
       *ngIf="recipe.image"
       [src]="recipe.image"
