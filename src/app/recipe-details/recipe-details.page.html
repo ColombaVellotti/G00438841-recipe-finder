@@ -1,5 +1,9 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
     <ion-title>Recipe Details</ion-title>
 
     <ion-buttons slot="end">
@@ -11,8 +15,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <p><b>Recipe id:</b> {{ recipeId }}</p>
-
   <p *ngIf="errorMsg" style="color: red;">
     <b>Error:</b> {{ errorMsg }}
   </p>
@@ -31,14 +33,32 @@
 
     <ion-list *ngIf="ingredients.length">
       <ion-item *ngFor="let ing of ingredients">
+        <ion-thumbnail slot="start" *ngIf="getIngredientImageUrl(ing)">
+          <ion-img [src]="getIngredientImageUrl(ing)"></ion-img>
+        </ion-thumbnail>
+
         <ion-label>
-          {{ ing.original || (ing.amount?.metric?.value + ' ' + ing.amount?.metric?.unit + ' ' + ing.name) }}
+          {{ getIngredientLine(ing) }}
         </ion-label>
       </ion-item>
     </ion-list>
 
     <p *ngIf="!ingredients.length && !errorMsg">
       No ingredients found in response.
+    </p>
+
+    <h3>Instructions</h3>
+
+    <ion-list *ngIf="steps.length">
+      <ion-item *ngFor="let s of steps; let i = index">
+        <ion-label>
+          <b>Step {{ i + 1 }}:</b> {{ s }}
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <p *ngIf="!steps.length">
+      No instructions available for this recipe.
     </p>
   </div>
 

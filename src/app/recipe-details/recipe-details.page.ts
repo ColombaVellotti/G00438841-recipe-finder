@@ -13,6 +13,9 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
+  IonBackButton,
+  IonThumbnail,
+  IonImg,
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -37,6 +40,9 @@ import { FavouritesService, FavouriteRecipe } from '../services/favourites.servi
     IonButtons,
     IonButton,
     IonIcon,
+    IonBackButton,
+    IonThumbnail,
+    IonImg,
   ],
 })
 export class RecipeDetailsPage {
@@ -45,10 +51,14 @@ export class RecipeDetailsPage {
   recipe: any = null;
   ingredients: any[] = [];
 
+  // NEW
+  steps: string[] = [];
+
   errorMsg: string = '';
-  debugMsg: string = '';
 
   isFavourite: boolean = false;
+
+  private readonly ING_IMG_BASE = 'https://spoonacular.com/cdn/ingredients_100x100/';
 
   constructor(
     private route: ActivatedRoute,
@@ -67,7 +77,7 @@ export class RecipeDetailsPage {
       return;
     }
 
-    // Check favourite status early (even before recipe loads)
+    // Favourite status
     this.isFavourite = await this.favouritesService.isFavourite(Number(this.recipeId));
 
     try {
@@ -75,33 +85,29 @@ export class RecipeDetailsPage {
       this.recipe = await this.recipeService.getRecipeDetails(this.recipeId);
       console.log('DETAILS PAGE recipe =', this.recipe);
 
-      // Update favourite status again now that we definitely have a valid recipeId
+      // favourite status again after load
       this.isFavourite = await this.favouritesService.isFavourite(Number(this.recipeId));
 
-      // 2) try extendedIngredients first (if present)
+      // 2) ingredients: prefer extendedIngredients
       if (this.recipe?.extendedIngredients?.length) {
         this.ingredients = this.recipe.extendedIngredients;
-        this.debugMsg = 'Ingredients from recipe.extendedIngredients';
-        return;
+      } else {
+        // fallback: ingredient widget endpoint
+        const widgetResp = await this.recipeService.getRecipeIngredientsWidget(this.recipeId);
+        console.log('WIDGET RESPONSE STATUS =', widgetResp.status);
+        console.log('WIDGET RESPONSE DATA =', widgetResp.data);
+
+        if (widgetResp.status !== 200) {
+          this.errorMsg = 'Ingredient widget error: ' + JSON.stringify(widgetResp.data);
+          this.ingredients = [];
+          return;
+        }
+
+        this.ingredients = widgetResp.data?.ingredients ?? [];
       }
 
-      // 3) fallback: ingredient widget endpoint (more reliable)
-      const widgetResp = await this.recipeService.getRecipeIngredientsWidget(this.recipeId);
-      console.log('WIDGET RESPONSE STATUS =', widgetResp.status);
-      console.log('WIDGET RESPONSE DATA =', widgetResp.data);
-
-      if (widgetResp.status !== 200) {
-        this.errorMsg = 'Ingredient widget error: ' + JSON.stringify(widgetResp.data);
-        this.ingredients = [];
-        return;
-      }
-
-      this.ingredients = widgetResp.data?.ingredients ?? [];
-      this.debugMsg = 'Ingredients from ingredientWidget.json';
-
-      if (!this.ingredients.length) {
-        this.debugMsg += ' (but array was empty) -> ' + JSON.stringify(widgetResp.data);
-      }
+      // 3) instructions: prefer analyzedInstructions (step-by-step)
+      this.steps = this.extractSteps(this.recipe);
     } catch (err: any) {
       console.log('DETAILS PAGE error =', err);
       this.errorMsg = 'Failed to load recipe details or ingredients. Check console.';
@@ -118,5 +124,55 @@ export class RecipeDetailsPage {
     };
 
     this.isFavourite = await this.favouritesService.toggleFavourite(fav);
+  }
+
+  // -------- Helpers for ingredient images + instructions --------
+
+  getIngredientImageUrl(ing: any): string {
+    // If Spoonacular gives a filename like "carrot.png"
+    const img = ing?.image;
+    if (typeof img === 'string' && img.trim().length > 0) {
+      return this.ING_IMG_BASE + img.trim();
+    }
+    return '';
+  }
+
+  getIngredientLine(ing: any): string {
+    // extendedIngredients usually has "original"
+    if (ing?.original) return ing.original;
+
+    // widget ingredients sometimes have name + amount.metric
+    const value = ing?.amount?.metric?.value;
+    const unit = ing?.amount?.metric?.unit;
+    const name = ing?.name;
+
+    if (value != null && unit && name) return `${value} ${unit} ${name}`;
+    if (name) return `${name}`;
+
+    return JSON.stringify(ing);
+  }
+
+  private extractSteps(recipe: any): string[] {
+    // Best: analyzedInstructions[0].steps[].step
+    const analyzed = recipe?.analyzedInstructions;
+    if (Array.isArray(analyzed) && analyzed.length > 0) {
+      const first = analyzed[0];
+      if (Array.isArray(first?.steps) && first.steps.length > 0) {
+        return first.steps
+          .map((s: any) => s?.step)
+          .filter((s: any) => typeof s === 'string' && s.trim().length > 0);
+      }
+    }
+
+    // Fallback: some recipes have "instructions" as a string (often HTML)
+    // We’ll display it as one “step” if we have nothing else.
+    const instr = recipe?.instructions;
+    if (typeof instr === 'string' && instr.trim().length > 0) {
+      // strip simple HTML tags (basic)
+      const text = instr.replace(/<\/?[^>]+(>|$)/g, '').trim();
+      if (text.length > 0) return [text];
+    }
+
+    return [];
   }
 }
