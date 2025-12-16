@@ -8,7 +8,11 @@
 
     <ion-buttons slot="end">
       <ion-button (click)="toggleFavourite()" [disabled]="!recipeId">
-        <ion-icon [name]="isFavourite ? 'heart' : 'heart-outline'"></ion-icon>
+        <ion-icon
+          [name]="isFavourite ? 'heart' : 'heart-outline'"
+          slot="start"
+        ></ion-icon>
+    {{ isFavourite ? 'Remove from Favourites' : 'Add to Favourites' }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
