@@ -15,6 +15,7 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
+  IonBackButton,
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -42,6 +43,7 @@ import { FavouritesService, FavouriteRecipe } from '../services/favourites.servi
     IonButtons,
     IonButton,
     IonIcon,
+    IonBackButton,
   ],
 })
 export class FavouritesPage {
